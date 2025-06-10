@@ -18,8 +18,15 @@ async function convertPdfToImages(pdfBlob, folderId) {
 
   const result = { imageBlobs: [], fileIds: [] };
 
-  // Create a temporary folder to store images
-  const tempFolder = DriveApp.createFolder('Temp_PDF_Images_' + new Date().getTime());
+  // Create a temporary folder to store images inside the provided folder
+  // Fall back to the root folder if an invalid ID is supplied
+  let tempFolder;
+  try {
+    const parentFolder = folderId ? DriveApp.getFolderById(folderId) : DriveApp.getRootFolder();
+    tempFolder = parentFolder.createFolder('Temp_PDF_Images_' + new Date().getTime());
+  } catch (e) {
+    tempFolder = DriveApp.createFolder('Temp_PDF_Images_' + new Date().getTime());
+  }
   console.log('Temporary folder created:', tempFolder.getId());
 
   // Loop through each page of the PDF
